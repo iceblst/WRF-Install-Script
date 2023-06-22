@@ -2,7 +2,8 @@
 #########################################################
 #		WRF Install Script     			#
 # 	This Script was written by Umur Dinç    	#
-#  To execute this script "bash WRF4.5_Install.bash"	#
+#  Modified by Hanif Ismail to use yum instead of apt   #
+#   To execute this script "bash WRF4.5_Install.bash"   #
 #########################################################
 WRFversion="4.5"
 type="ARW"
@@ -38,11 +39,11 @@ else
 exit
 fi
 ########
-packagemanagement=$(which apt)
+packagemanagement=$(which yum)
 if [ -n "$packagemanagement" ]; then
-        echo "Operating system uses apt packagemanagement"
+        echo "Operating system uses yum packagemanagement"
 else
-        echo "Sorry! This script is written for the operating systems which uses apt packagemanagement. Please try this script with debian based operating systems, such as, Ubuntu, Linux Mint, Debian, Pardus etc."
+        echo "Sorry! This script is written for the operating systems which uses yum package management. Please try this script with the corresponding operating systems, such as,Fedora, Centos, RHEL etc."
 #Tested on Ubuntu 20.04
 exit
 fi
@@ -59,14 +60,14 @@ if [ "$type" = "Chem" ]; then
  extra_packages="flex-old bison"
 fi
 echo "Please enter your sudo password, so necessary packages can be installed."
-sudo apt-get update
-mpich_repoversion=$(apt-cache policy mpich | grep Candidate | cut -d ':' -f 2 | cut -d '-' -f 1 | cut -c2)
+sudo yum update
+mpich_repoversion=$(yum --cacheonly list mpich | grep Candidate | cut -d ':' -f 2 | cut -d '-' -f 1 | cut -c2)
 if [ "$mpich_repoversion" -ge 4 ]; then
 mpirun_packages="libopenmpi-dev libhdf5-openmpi-dev"
 else
 mpirun_packages="mpich libhdf5-mpich-dev"
 fi
-sudo apt-get install -y build-essential csh gfortran m4 curl perl ${mpirun_packages} libpng-dev netcdf-bin libnetcdff-dev ${extra_packages}
+sudo yum install -y build-essential csh gfortran m4 curl perl ${mpirun_packages} libpng-dev netcdf-bin libnetcdff-dev ${extra_packages}
 
 package4checks="build-essential csh gfortran m4 curl perl ${mpirun_packages} libpng-dev netcdf-bin libnetcdff-dev ${extra_packages}"
 for packagecheck in ${package4checks}; do
@@ -191,13 +192,13 @@ if [ -d "WPS_GEOG" ]; then
   echo "please type yes or no"
   read GEOG_validation
   if [ ${GEOG_validation} = "yes" ]; then
-    wget https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz -O geog_high_res_mandatory.tar.gz
+    wget -c https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz -O geog_high_res_mandatory.tar.gz
     tar -zxvf geog_high_res_mandatory.tar.gz
   else
     echo "You can download it later from http://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz and extract it"
    fi
 else
-wget https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz -O geog_high_res_mandatory.tar.gz
+wget -c https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz -O geog_high_res_mandatory.tar.gz
 tar -zxvf geog_high_res_mandatory.tar.gz
 fi
 if [ "$type" = "Chem" ]; then
@@ -206,7 +207,7 @@ if [ "$type" = "Chem" ]; then
  for i in ${Chem_Geog}; do
   if [ ! -d $i ]; then
    echo $i
-   wget https://www2.mmm.ucar.edu/wrf/src/wps_files/${i}.tar.bz2 -O ${i}.tar.bz2
+   wget -c https://www2.mmm.ucar.edu/wrf/src/wps_files/${i}.tar.bz2 -O ${i}.tar.bz2
    tar -xvf ${i}.tar.bz2
    rm ${i}.tar.bz2
   fi
@@ -228,7 +229,7 @@ if [ "$type" = "Chem" ]; then
   echo "Compilation of convert_emiss.exe is finished, now PREP-CHEM-SRC download and compilation has started."
   [ -d "PREP-CHEM-SRC-1.5" ] && mv PREP-CHEM-SRC-1.5 PREP-CHEM-SRC-1.5-old
   [ -f "prep_chem_sources_v1.5_24aug2015.tar.gz" ] && mv prep_chem_sources_v1.5_24aug2015.tar.gz prep_chem_sources_v1.5_24aug2015.tar.gz-old
-  wget ftp://aftp.fsl.noaa.gov/divisions/taq/global_emissions/prep_chem_sources_v1.5_24aug2015.tar.gz -O prep_chem_sources_v1.5_24aug2015.tar.gz
+  wget -c ftp://aftp.fsl.noaa.gov/divisions/taq/global_emissions/prep_chem_sources_v1.5_24aug2015.tar.gz -O prep_chem_sources_v1.5_24aug2015.tar.gz
   tar -zxvf prep_chem_sources_v1.5_24aug2015.tar.gz
   cd PREP-CHEM-SRC-1.5/bin/build
   sed -i "s#NETCDF=.*#NETCDF=/usr#" include.mk.gfortran.wrf
@@ -248,7 +249,7 @@ if [ "$type" = "Chem" ]; then
   cd ..
   mkdir datain
   cd datain
-  wget ftp://aftp.fsl.noaa.gov/divisions/taq/global_emissions/global_emissions_v3_24aug2015.tar.gz -O global_emissions_v3_24aug2015.tar.gz
+  wget -c ftp://aftp.fsl.noaa.gov/divisions/taq/global_emissions/global_emissions_v3_24aug2015.tar.gz -O global_emissions_v3_24aug2015.tar.gz
   tar -zxvf global_emissions_v3_24aug2015.tar.gz
   mv Global_emissions_v3/* .
   rm -r Global_emissions_v3
