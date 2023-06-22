@@ -57,30 +57,32 @@ fi
 #########################################################
 
 if [ "$type" = "Chem" ]; then
- extra_packages="flex-old bison"
+ extra_packages="flex libfl-devel libfl-static bison byacc"
 fi
 echo "Please enter your sudo password, so necessary packages can be installed."
 sudo yum update
-mpich_repoversion=$(yum --cacheonly list mpich | grep Candidate | cut -d ':' -f 2 | cut -d '-' -f 1 | cut -c2)
+export mpich_repoversion=$(yum --cacheonly list mpich | grep 64 | awk '{print $2}' | cut -c1 | grep -Eo '[0-9]{1,2}')
 if [ "$mpich_repoversion" -ge 4 ]; then
-mpirun_packages="libopenmpi-dev libhdf5-openmpi-dev"
+mpirun_packages="openmpi-devel hdf5-openmpi-devel"
 else
-mpirun_packages="mpich libhdf5-mpich-dev"
+mpirun_packages="mpich hdf5-mpich-devel"
 fi
-sudo yum install -y build-essential csh gfortran m4 curl perl ${mpirun_packages} libpng-dev netcdf-bin libnetcdff-dev ${extra_packages} dpkg
+sudo yum install -y $mpirun_packages
+sudo yum install -y time dpkg gcc gcc-c++ make csh gfortran m4 curl perl libpng-devel netcdf netcdf-fortran-devel
+sudo yum install -y $extra_packages
 
-package4checks="build-essential csh gfortran m4 curl perl ${mpirun_packages} libpng-dev netcdf-bin libnetcdff-dev ${extra_packages}"
-for packagecheck in ${package4checks}; do
- packagechecked=$(dpkg-query --show --showformat='${db:Status-Status}\n' $packagecheck | grep not-installed)
- if [ "$packagechecked" = "not-installed" ]; then
-        echo $packagecheck "$packagechecked"
-     packagesnotinstalled=yes
- fi
-done
-if [ "$packagesnotinstalled" = "yes" ]; then
-        echo "Some packages were not installed, please re-run the script and enter your root password, when it is requested."
-exit
-fi
+# package4checks="gcc gcc-c++ make csh gfortran m4 curl perl ${mpirun_packages} png-devel netcdf netcdf-fortran-devel ${extra_packages}"
+# for packagecheck in ${package4checks}; do
+#  packagechecked=$(dpkg-query --show --showformat='${db:Status-Status}\n' $packagecheck | grep not-installed)
+#  if [ "$packagechecked" = "not-installed" ]; then
+#         echo $packagecheck "$packagechecked"
+#      packagesnotinstalled=yes
+#  fi
+# done
+# if [ "$packagesnotinstalled" = "yes" ]; then
+#         echo "Some packages were not installed, please re-run the script and enter your root password, when it is requested."
+# exit
+# fi
 #########################################
 cd ~
 mkdir Build_WRF
@@ -102,15 +104,17 @@ export FCFLAGS=-m64
 export F77=gfortran
 export FFLAGS=-m64
 export NETCDF=/usr
+export NETCDF_classic=1
 export HDF5=/usr/lib/x86_64-linux-gnu/hdf5/serial
 export LDFLAGS="-L/usr/lib/x86_64-linux-gnu/hdf5/serial/ -L/usr/lib"
 export CPPFLAGS="-I/usr/include/hdf5/serial/ -I/usr/include"
 export LD_LIBRARY_PATH=/usr/lib
 if [ "$type" = "Chem" ]; then
-[[ -z $(grep "export FLEX_LIB_DIR=/usr/lib" ~/.bashrc) ]] && echo "export FLEX_LIB_DIR=/usr/lib" >> ~/.bashrc
+[[ -z $(grep "export FLEX_LIB_DIR=/usr/lib64" ~/.bashrc) ]] && echo "export FLEX_LIB_DIR=/usr/lib64" >> ~/.bashrc
 [[ -z $(grep "export YACC='yacc -d'" ~/.bashrc) ]] && echo "export YACC='yacc -d'" >> ~/.bashrc
-export FLEX_LIB_DIR=/usr/lib
+export FLEX_LIB_DIR=/usr/lib64
 export YACC='yacc -d'
+export PATH=/usr/lib64/openmpi/bin:$PATH
 fi
 ##########################################
 #	Jasper Installation		#
@@ -118,7 +122,7 @@ fi
 [ -d "jasper-1.900.1" ] && mv jasper-1.900.1 jasper-1.900.1-old
 [ -f "jasper-1.900.1.tar.gz" ] && mv jasper-1.900.1.tar.gz jasper-1.900.1.tar.gz-old
 wget https://www2.mmm.ucar.edu/wrf/OnLineTutorial/compile_tutorial/tar_files/jasper-1.900.1.tar.gz -O jasper-1.900.1.tar.gz
-tar -zxvf jasper-1.900.1.tar.gz
+tar -zxf jasper-1.900.1.tar.gz
 cd jasper-1.900.1/
 ./configure --prefix=$DIR/grib2
 make
@@ -135,12 +139,12 @@ cd ..
 [ -d "WRFV${WRFversion}" ] && mv WRFV${WRFversion} WRFV${WRFversion}-old
 [ -f "WRFV${WRFversion}.tar.gz" ] && mv WRFV${WRFversion}.tar.gz WRFV${WRFversion}.tar.gz-old
 wget https://github.com/wrf-model/WRF/releases/download/v${WRFversion}/v${WRFversion}.tar.gz -O WRFV${WRFversion}.tar.gz
-tar -zxvf WRFV${WRFversion}.tar.gz
+tar -zxf WRFV${WRFversion}.tar.gz
 if [ "$type" = "Hydro" ]; then
 export WRF_HYDRO=1
 [ -f "v5.2.0.tar.gz" ] && mv v5.2.0.tar.gz v5.2.0.tar.gz-old
 wget https://github.com/NCAR/wrf_hydro_nwm_public/archive/refs/tags/v5.2.0.tar.gz -O v5.2.0.tar.gz
-tar -zxvf v5.2.0.tar.gz
+tar -zxf v5.2.0.tar.gz
 /bin/cp -rf wrf_hydro_nwm_public-5.2.0/trunk/NDHMS/* WRFV${WRFversion}/hydro/
 rm v5.2.0.tar.gz
 rm -r wrf_hydro_nwm_public-5.2.0
@@ -173,7 +177,7 @@ WPSversion="4.5"
 [ -d "WPS-${WPSversion}" ] && mv WPS-${WPSversion} WPS-${WPSversion}-old
 [ -f "WPSV${WPSversion}.TAR.gz" ] && mv WPSV${WPSversion}.TAR.gz WPSV${WPSversion}.TAR.gz-old
 wget https://github.com/wrf-model/WPS/archive/v${WPSversion}.tar.gz -O WPSV${WPSversion}.TAR.gz
-tar -zxvf WPSV${WPSversion}.TAR.gz
+tar -zxf WPSV${WPSversion}.TAR.gz
 cd WPS-${WPSversion}
 ./clean
 sed -i '163s/.*/    NETCDFF="-lnetcdff"/' configure
@@ -193,7 +197,7 @@ if [ -d "WPS_GEOG" ]; then
   read GEOG_validation
   if [ ${GEOG_validation} = "yes" ]; then
     wget -c https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz -O geog_high_res_mandatory.tar.gz
-    tar -zxvf geog_high_res_mandatory.tar.gz
+    tar -zxf geog_high_res_mandatory.tar.gz
   else
     echo "You can download it later from http://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz and extract it"
    fi
@@ -208,7 +212,7 @@ if [ "$type" = "Chem" ]; then
   if [ ! -d $i ]; then
    echo $i
    wget -c https://www2.mmm.ucar.edu/wrf/src/wps_files/${i}.tar.bz2 -O ${i}.tar.bz2
-   tar -xvf ${i}.tar.bz2
+   tar -xf ${i}.tar.bz2
    rm ${i}.tar.bz2
   fi
  done
@@ -230,7 +234,7 @@ if [ "$type" = "Chem" ]; then
   [ -d "PREP-CHEM-SRC-1.5" ] && mv PREP-CHEM-SRC-1.5 PREP-CHEM-SRC-1.5-old
   [ -f "prep_chem_sources_v1.5_24aug2015.tar.gz" ] && mv prep_chem_sources_v1.5_24aug2015.tar.gz prep_chem_sources_v1.5_24aug2015.tar.gz-old
   wget -c ftp://aftp.fsl.noaa.gov/divisions/taq/global_emissions/prep_chem_sources_v1.5_24aug2015.tar.gz -O prep_chem_sources_v1.5_24aug2015.tar.gz
-  tar -zxvf prep_chem_sources_v1.5_24aug2015.tar.gz
+  tar -zxf prep_chem_sources_v1.5_24aug2015.tar.gz
   cd PREP-CHEM-SRC-1.5/bin/build
   sed -i "s#NETCDF=.*#NETCDF=/usr#" include.mk.gfortran.wrf
   sed -i 's#-L$(NETCDF)/lib#-L/usr/lib/x86_64-linux-gnu#' include.mk.gfortran.wrf
@@ -250,7 +254,7 @@ if [ "$type" = "Chem" ]; then
   mkdir datain
   cd datain
   wget -c ftp://aftp.fsl.noaa.gov/divisions/taq/global_emissions/global_emissions_v3_24aug2015.tar.gz -O global_emissions_v3_24aug2015.tar.gz
-  tar -zxvf global_emissions_v3_24aug2015.tar.gz
+  tar -zxf global_emissions_v3_24aug2015.tar.gz
   mv Global_emissions_v3/* .
   rm -r Global_emissions_v3
   mv Emission_data/ EMISSION_DATA
