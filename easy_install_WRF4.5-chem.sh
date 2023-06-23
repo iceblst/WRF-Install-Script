@@ -1,6 +1,6 @@
 #!/bin/bash
 
-wget -cnv https://github.com/iceblst/WRF-Install-Script/blob/version-yum/WRF4.5_Install-yumverse.sh
+wget -nv https://github.com/iceblst/WRF-Install-Script/blob/version-yum/WRF4.5_Install-yumverse.sh
 chmod 777 WRF4.5_Install-yumverse.sh
 echo "Please enter your sudo password, so necessary packages can be installed."
 sudo yum update
