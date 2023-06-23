@@ -139,7 +139,7 @@ export JASPERLIB=$DIR/grib2/lib
 export JASPERINC=$DIR/grib2/include
 cd ..
 #########################################
-#	WRF Installation		#
+#	WRF Installation		# 
 #########################################
 cd ..
 [ -d "WRFV${WRFversion}" ] && mv WRFV${WRFversion} WRFV${WRFversion}-old
