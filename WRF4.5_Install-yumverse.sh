@@ -213,7 +213,7 @@ if [ -d "WPS_GEOG" ]; then
   echo "Do you want WPS_GEOG files to be redownloaded and reexracted?"
   echo "please type yes or no"
   # read GEOG_validation
-  export GEOG_validation="no"
+  export GEOG_validation="yes"
   if [ ${GEOG_validation} = "yes" ]; then
     wget -c https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz -O geog_high_res_mandatory.tar.gz
     tar -zxf geog_high_res_mandatory.tar.gz
