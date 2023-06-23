@@ -127,7 +127,7 @@ fi
 #########################################
 [ -d "jasper-1.900.1" ] && mv jasper-1.900.1 jasper-1.900.1-old
 [ -f "jasper-1.900.1.tar.gz" ] && mv jasper-1.900.1.tar.gz jasper-1.900.1.tar.gz-old
-wget -c https://www2.mmm.ucar.edu/wrf/OnLineTutorial/compile_tutorial/tar_files/jasper-1.900.1.tar.gz -O jasper-1.900.1.tar.gz
+wget -cnv https://www2.mmm.ucar.edu/wrf/OnLineTutorial/compile_tutorial/tar_files/jasper-1.900.1.tar.gz -O jasper-1.900.1.tar.gz
 tar -zxf jasper-1.900.1.tar.gz
 cd jasper-1.900.1/
 ./configure --prefix=$DIR/grib2
@@ -144,12 +144,12 @@ cd ..
 cd ..
 [ -d "WRFV${WRFversion}" ] && mv WRFV${WRFversion} WRFV${WRFversion}-old
 [ -f "WRFV${WRFversion}.tar.gz" ] && mv WRFV${WRFversion}.tar.gz WRFV${WRFversion}.tar.gz-old
-wget -c https://github.com/wrf-model/WRF/releases/download/v${WRFversion}/v${WRFversion}.tar.gz -O WRFV${WRFversion}.tar.gz
+wget -cnv https://github.com/wrf-model/WRF/releases/download/v${WRFversion}/v${WRFversion}.tar.gz -O WRFV${WRFversion}.tar.gz
 tar -zxf WRFV${WRFversion}.tar.gz
 if [ "$type" = "Hydro" ]; then
 export WRF_HYDRO=1
 [ -f "v5.2.0.tar.gz" ] && mv v5.2.0.tar.gz v5.2.0.tar.gz-old
-wget -c https://github.com/NCAR/wrf_hydro_nwm_public/archive/refs/tags/v5.2.0.tar.gz -O v5.2.0.tar.gz
+wget -cnv https://github.com/NCAR/wrf_hydro_nwm_public/archive/refs/tags/v5.2.0.tar.gz -O v5.2.0.tar.gz
 tar -zxf v5.2.0.tar.gz
 /bin/cp -rf wrf_hydro_nwm_public-5.2.0/trunk/NDHMS/* WRFV${WRFversion}/hydro/
 rm v5.2.0.tar.gz
@@ -192,7 +192,7 @@ mv WRFV${WRFversion} WRF-${WRFversion}-${type}
 WPSversion="4.5"
 [ -d "WPS-${WPSversion}" ] && rsync -a  WPS-${WPSversion}/ WPS-${WPSversion}-old/ && rm -rf WPS-${WPSversion}
 [ -f "WPSV${WPSversion}.TAR.gz" ] && mv WPSV${WPSversion}.TAR.gz WPSV${WPSversion}.TAR.gz-old
-wget -c https://github.com/wrf-model/WPS/archive/v${WPSversion}.tar.gz -O WPSV${WPSversion}.TAR.gz
+wget -cnv https://github.com/wrf-model/WPS/archive/v${WPSversion}.tar.gz -O WPSV${WPSversion}.TAR.gz
 tar -zxf WPSV${WPSversion}.TAR.gz
 cd WPS-${WPSversion}
 ./clean
@@ -215,7 +215,7 @@ if [ -d "WPS_GEOG" ]; then
   # read GEOG_validation
   export GEOG_validation="yes"
   if [ ${GEOG_validation} = "yes" ]; then
-    wget -c https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz -O geog_high_res_mandatory.tar.gz
+    wget -cnv https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz -O geog_high_res_mandatory.tar.gz
     tar -zxf geog_high_res_mandatory.tar.gz
     if [ "$type" = "Chem" ]; then
       cd WPS_GEOG
@@ -223,7 +223,7 @@ if [ -d "WPS_GEOG" ]; then
       for i in ${Chem_Geog}; do
         if [ ! -d $i ]; then
           echo $i
-          wget -c https://www2.mmm.ucar.edu/wrf/src/wps_files/${i}.tar.bz2 -O ${i}.tar.bz2
+          wget -cnv https://www2.mmm.ucar.edu/wrf/src/wps_files/${i}.tar.bz2 -O ${i}.tar.bz2
           tar -xf ${i}.tar.bz2
           rm ${i}.tar.bz2
         fi
@@ -232,7 +232,7 @@ if [ -d "WPS_GEOG" ]; then
     echo "You can download it later from http://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz and extract it"
    fi
 else
-wget -c https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz -O geog_high_res_mandatory.tar.gz
+wget -cnv https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz -O geog_high_res_mandatory.tar.gz
 tar -zxf geog_high_res_mandatory.tar.gz
 fi
  cd ..
@@ -251,7 +251,7 @@ if [ "$type" = "Chem" ]; then
   echo "Compilation of convert_emiss.exe is finished, now PREP-CHEM-SRC download and compilation has started."
   [ -d "PREP-CHEM-SRC-1.5" ] && rsync -a PREP-CHEM-SRC-1.5/ PREP-CHEM-SRC-1.5-old/ && rm -rf PREP-CHEM-SRC-1.5
   [ -f "prep_chem_sources_v1.5_24aug2015.tar.gz" ] && mv prep_chem_sources_v1.5_24aug2015.tar.gz prep_chem_sources_v1.5_24aug2015.tar.gz-old
-  wget -c ftp://aftp.fsl.noaa.gov/divisions/taq/global_emissions/prep_chem_sources_v1.5_24aug2015.tar.gz -O prep_chem_sources_v1.5_24aug2015.tar.gz
+  wget -cnv ftp://aftp.fsl.noaa.gov/divisions/taq/global_emissions/prep_chem_sources_v1.5_24aug2015.tar.gz -O prep_chem_sources_v1.5_24aug2015.tar.gz
   tar -zxf prep_chem_sources_v1.5_24aug2015.tar.gz
   cd PREP-CHEM-SRC-1.5/bin/build
   sed -i "s#NETCDF=.*#NETCDF=/usr#" include.mk.gfortran.wrf
@@ -271,7 +271,7 @@ if [ "$type" = "Chem" ]; then
   cd ..
   mkdir datain
   cd datain
-  wget -c ftp://aftp.fsl.noaa.gov/divisions/taq/global_emissions/global_emissions_v3_24aug2015.tar.gz -O global_emissions_v3_24aug2015.tar.gz
+  wget -cnv ftp://aftp.fsl.noaa.gov/divisions/taq/global_emissions/global_emissions_v3_24aug2015.tar.gz -O global_emissions_v3_24aug2015.tar.gz
   tar -zxf global_emissions_v3_24aug2015.tar.gz
   mv Global_emissions_v3/* .
   rm -r Global_emissions_v3
