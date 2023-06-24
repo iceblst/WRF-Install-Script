@@ -114,7 +114,6 @@ export CPPFLAGS="-I/usr/include"
 export LD_LIBRARY_PATH=/usr/lib64
 export PATH=/usr/lib64/openmpi/bin:$PATH
 export PATH=/usr:$PATH
-export WRF_DIR="WRF-${WRFversion}-${type}"
 export J="-j 6"
 if [ "$type" = "Chem" ]; then
 [[ -z $(grep "export FLEX_LIB_DIR=/usr/lib64" ~/.bashrc) ]] && echo "export FLEX_LIB_DIR=/usr/lib64" >> ~/.bashrc
@@ -195,10 +194,11 @@ WPSversion="4.5"
 wget -cnv https://github.com/wrf-model/WPS/archive/v${WPSversion}.tar.gz -O WPSV${WPSversion}.TAR.gz
 tar -zxf WPSV${WPSversion}.TAR.gz
 cd WPS-${WPSversion}
-./clean
+#./clean
 sed -i '163s/.*/    NETCDFF="-lnetcdff"/' configure
 sed -i "195s/.*/standard_wrf_dirs=\"WRF-${WRFversion}-${type} WRF WRF-4.0.3 WRF-4.0.2 WRF-4.0.1 WRF-4.0 WRFV3\"/" configure
 export FFLAGS="-m64 -I/usr/lib64/gfortran/modules"
+export WRF_DIR="${homey}/Build_WRF/WRF-${WRFversion}-${type}"
 echo 1 | ./configure
 sed -i "72s#FFLAGS              = -ffree-form -O -fconvert=big-endian -frecord-marker=4#FFLAGS              = -ffree-form -O -fconvert=big-endian -frecord-marker=4 -I/usr/lib64/gfortran/modules#g" configure.wps
 logsave compile.log ./compile
@@ -259,6 +259,7 @@ if [ "$type" = "Chem" ]; then
   sed -i "s#HDF5=.*#HDF5=/usr/lib64#" include.mk.gfortran.wrf
   sed -i "s#HDF5_INC=.*#HDF5_INC=-I/usr/include#" include.mk.gfortran.wrf
   sed -i 's#-L$(HDF5)/lib#-L/usr/lib64#' include.mk.gfortran.wrf
+  sed -i "s#NETCDF_INC=-I\$(NETCDF)/include#NETCDF_INC=-I\$(NETCDF)/include -I/usr/lib64/gfortran/modules#" include.mk.gfortran.wrf
   gfortversion=$(gfortran -dumpversion)
   if [ "$gfortversion" -ge 10 ]; then
   sed -i 's#F_OPTS=.*#F_OPTS=  -Xpreprocessor -D$(CHEM) -O2 -fconvert=big-endian -frecord-marker=4 -fallow-argument-mismatch#' include.mk.gfortran.wrf
@@ -286,4 +287,4 @@ fi
 ##########################################################
 finish_run=$(date +%s)
 totaltime_run=$((finish_run-start_run))
-echo "Installation has completed, and it took $(date -d@{totaltime_run} -u +%H:%M:%S) from start to finish"
+echo "Installation has completed, and it took $(date -d@${totaltime_run} -u +%H:%M:%S) from start to finish"
