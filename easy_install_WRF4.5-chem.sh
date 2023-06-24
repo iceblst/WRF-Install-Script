@@ -8,7 +8,8 @@ sudo yum update
 echo "Starting installation of WRF Chem V4.5"
 ./WRF4.5_Install-yumverse.sh -chem >& ~/compile_install_chem.log
 cd 
-WRF_DIR="Build_WRF/${WRF_DIR}"
+WRF_DIR="Build_WRF/WRF-4.5-Chem"
+homey=$(pwd)
 wrf_executables="${WRF_DIR}/main/real.exe ${WRF_DIR}/main/ndown.exe ${WRF_DIR}/main/wrf.exe ${WRF_DIR}/main/tc.exe ${WRF_DIR}/chem/convert_emiss.exe \
                  ${homey}/Build_WRF/WPS-4.5/ungrib.exe ${homey}/Build_WRF/WPS-4.5/geogrid.exe ${homey}/Build_WRF/WPS-4.5/metgrid.exe\
                  ${homey}/Build_WRF/PREP-CHEM-SRC-1.5/bin/prep_chem_sources_RADM_WRF_FIM_.exe"
